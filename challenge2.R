@@ -37,19 +37,21 @@ bul_exposure <- readHFDweb(CNTRY = "BGR",
 
 
 # Korea
-bul_birth <- readHFDweb(CNTRY = "KOR",
+kor_birth <- readHFDweb(CNTRY = "KOR",
                         item = "birthsTR",
                         username = "gonzalo.fce@gmail.com",
                         password = "fermat31416")
 
 
-bul_exposure <- readHFDweb(CNTRY = "KOR",
+kor_exposure <- readHFDweb(CNTRY = "KOR",
                            item = "exposTR",
                            username = "gonzalo.fce@gmail.com",
                            password = "fermat31416")
 
 
 # Wrangling time
+
+# Spain
 spain_birth2 <- spain_birth %>% 
                   filter(OpenInterval == FALSE) %>% 
                   group_by(Year) %>% 
@@ -59,6 +61,48 @@ spain_exposure2 <- spain_exposure %>%
                   filter(OpenInterval == FALSE) %>% 
                   group_by(Year) %>% 
                   summarise(Exposure = sum(Exposure, na.rm = TRUE))
+
+
+# Bulgaria
+bul_birth2 <- bul_birth %>% 
+  filter(OpenInterval == FALSE) %>% 
+  group_by(Year) %>% 
+  summarise(Births = sum(Total, na.rm = TRUE))
+
+bul_exposure2 <- bul_exposure %>% 
+  filter(OpenInterval == FALSE) %>% 
+  group_by(Year) %>% 
+  summarise(Exposure = sum(Exposure, na.rm = TRUE))
+
+# Korea
+kor_birth2 <- kor_birth %>% 
+  filter(OpenInterval == FALSE) %>% 
+  group_by(Year) %>% 
+  summarise(Births = sum(Total, na.rm = TRUE))
+
+kor_exposure2 <- kor_exposure %>% 
+  filter(OpenInterval == FALSE) %>% 
+  group_by(Year) %>% 
+  summarise(Exposure = sum(Exposure, na.rm = TRUE))
+
+
+
+
+# All together now
+spain <- spain_exposure2 %>% left_join(spain_birth2, by = "Year")
+
+bulgaria <- bul_exposure2 %>% left_join(bul_birth2, by = "Year")
+
+korea <- kor_exposure2 %>% left_join(kor_birth2, by = "Year")
+
+# Deleting what we don't use anymore
+rm(spain_birth, spain_birth2,
+   spain_exposure, spain_exposure2,
+   bul_birth, bul_birth2,
+   bul_exposure, bul_exposure2,
+   kor_birth, kor_birth2,
+   kor_exposure, kor_exposure2)
+
 
 
 
