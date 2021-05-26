@@ -113,7 +113,8 @@ challenge2 <- rbind(spain, czechia, korea)
 
 
 # Some plotting
-challenge2 %>% 
+challenge2 %>%
+  filter(Age >= 15, Age <= 49) %>% 
   mutate(TFR_age = Births/Exposure) %>%
   group_by(cty, Year) %>%
   summarise(TFR = sum(TFR_age, na.rm = T)) %>% 
