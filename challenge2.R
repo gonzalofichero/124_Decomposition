@@ -114,12 +114,12 @@ challenge2 <- rbind(spain, czechia, korea)
 
 # Some plotting
 challenge2 %>% 
-  group_by(cty, Year) %>% 
-  summarise(Total_Birth = sum(Births, na.rm = T),
-            Total_Exposure = sum(Exposure, na.mr = T)) %>% 
-  mutate(TFR = Total_Birth/Total_Exposure) %>% 
+  mutate(TFR_age = Births/Exposure) %>%
+  group_by(cty, Year) %>%
+  summarise(TFR = sum(TFR_age, na.rm = T)) %>% 
   filter(Year >= 2000) %>% 
-  ggplot(aes(x=Year, y = TFR, color = cty)) + geom_line()
+  ggplot(aes(x=Year, y = TFR, color = cty)) + geom_line() +
+  theme_bw()
 
 
 
