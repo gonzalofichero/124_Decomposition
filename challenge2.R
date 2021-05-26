@@ -23,14 +23,14 @@ spain_exposure <- readHFDweb(CNTRY = "ESP",
                           username = "gonzalo.fce@gmail.com",
                           password = "fermat31416")
 
-# Bulgaria
-bul_birth <- readHFDweb(CNTRY = "BGR",
+# Czechia
+cze_birth <- readHFDweb(CNTRY = "CZE",
                           item = "birthsTR",
                           username = "gonzalo.fce@gmail.com",
                           password = "fermat31416")
 
 
-bul_exposure <- readHFDweb(CNTRY = "BGR",
+cze_exposure <- readHFDweb(CNTRY = "CZE",
                              item = "exposTR",
                              username = "gonzalo.fce@gmail.com",
                              password = "fermat31416")
@@ -63,13 +63,13 @@ spain_exposure2 <- spain_exposure %>%
                   summarise(Exposure = sum(Exposure, na.rm = TRUE))
 
 
-# Bulgaria
-bul_birth2 <- bul_birth %>% 
+# Czechia
+cze_birth2 <- cze_birth %>% 
   filter(OpenInterval == FALSE) %>% 
   group_by(Year, Age) %>% 
   summarise(Births = sum(Total, na.rm = TRUE))
 
-bul_exposure2 <- bul_exposure %>% 
+cze_exposure2 <- cze_exposure %>% 
   filter(OpenInterval == FALSE) %>% 
   group_by(Year, Age) %>% 
   summarise(Exposure = sum(Exposure, na.rm = TRUE))
@@ -91,24 +91,24 @@ kor_exposure2 <- kor_exposure %>%
 # All together now
 spain <- spain_exposure2 %>% left_join(spain_birth2, by = c("Year", "Age"))
 
-bulgaria <- bul_exposure2 %>% left_join(bul_birth2, by = c("Year", "Age"))
+czechia <- cze_exposure2 %>% left_join(cze_birth2, by = c("Year", "Age"))
 
 korea <- kor_exposure2 %>% left_join(kor_birth2, by = c("Year", "Age"))
 
 # Deleting what we don't use anymore
 rm(spain_birth, spain_birth2,
    spain_exposure, spain_exposure2,
-   bul_birth, bul_birth2,
-   bul_exposure, bul_exposure2,
+   cze_birth, cze_birth2,
+   cze_exposure, cze_exposure2,
    kor_birth, kor_birth2,
    kor_exposure, kor_exposure2)
 
 # All together in 1 data.frame
 spain$cty <- "Spain"
-bulgaria$cty <- "Bulgaria"
+czechia$cty <- "Czechia"
 korea$cty <- "Korea"
 
-challenge2 <- rbind(spain, bulgaria, korea)
+challenge2 <- rbind(spain, czechia, korea)
 
 
 
