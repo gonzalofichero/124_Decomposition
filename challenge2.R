@@ -48,3 +48,17 @@ bul_exposure <- readHFDweb(CNTRY = "KOR",
                            username = "gonzalo.fce@gmail.com",
                            password = "fermat31416")
 
+
+# Wrangling time
+spain_birth2 <- spain_birth %>% 
+                  filter(OpenInterval == FALSE) %>% 
+                  group_by(Year) %>% 
+                  summarise(Births = sum(Total, na.rm = TRUE))
+
+spain_exposure2 <- spain_exposure %>% 
+                  filter(OpenInterval == FALSE) %>% 
+                  group_by(Year) %>% 
+                  summarise(Exposure = sum(Exposure, na.rm = TRUE))
+
+
+
