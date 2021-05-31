@@ -126,7 +126,6 @@ challenge2 %>%
 
 # Create Kitagawa function
 # Instead of having Mx, now I have ASFR for each age group. t1 and t2 are subsequent years for all ages
-# Need to create Year totals for Nx
 # Using:
     # Tønnessen, M. (2019). Declined total fertility rate among immigrants and the role of newly arrived women in Norway. European Journal of Population, 1-27.
     # Canudas-Romo, V. (2003). Decomposition methods in demography. Amsterdam: Rozenberg Publishers.
@@ -138,17 +137,22 @@ challenge2 <- challenge2 %>%
 
 # Loop Kitagawa on full dataset
 
+# From-to (generalize):
+init_y <- 2000
+end_y <- 2018
+
+
 # Spain
 spain <- challenge2 %>% 
-          filter(cty == "Spain", Year >= 2000)
+          filter(cty == "Spain", Year >= init_y)
 
-spain_decom <- data.frame(matrix(, nrow = 18, ncol = 4))
+spain_decom <- data.frame(matrix(NA, nrow = end_y - init_y, ncol = 4))
 names(spain_decom) <- c("Year", "CC", "RC", "true_delta")
 
-spain_decom$Year <- seq(2001,2018, by=1)
+spain_decom$Year <- seq(init_y + 1, end_y, by=1)
 spain_decom$cty <- "Spain"
 
-for (i in 2000:2017){
+for (i in init_y:(end_y-1)){
   # Select ASFR for first period
   ASFR1 <- spain[spain$Year == i,]$ASFR
   # Select population for first period
@@ -157,13 +161,13 @@ for (i in 2000:2017){
   ASFR2 <- spain[spain$Year == i+1,]$ASFR
   Nx2 <- spain[spain$Year == i+1,]$Exposure
   
-  spain_decom$CC[i-2000+1] <- sum(0.5 * (ASFR2+ASFR1) * (Nx2/sum(Nx2) - Nx1/sum(Nx1))) * 1000
-  spain_decom$RC[i-2000+1] <- sum(0.5 * (Nx2/sum(Nx2) + Nx1/sum(Nx1)) * (ASFR2-ASFR1)) * 1000
-  spain_decom$true_delta[i-2000+1] <- sum(ASFR2) - sum(ASFR1)
+  spain_decom$CC[i - init_y + 1] <- sum(0.5 * (ASFR2+ASFR1) * ( (Nx2/sum(Nx2)) - (Nx1/sum(Nx1)) ) )
+  spain_decom$RC[i - init_y + 1] <- sum(0.5 * ( (Nx2/sum(Nx2)) + (Nx1/sum(Nx1)) ) * (ASFR2-ASFR1) )
+  spain_decom$true_delta[i - init_y + 1] <- sum(ASFR2) - sum(ASFR1)
 }
 
 
 # CHECK!!!
-spain_decom$delta_TFR <- spain_decom$CC + spain_decom$RC
+spain_decom$kit_delta <- spain_decom$CC + spain_decom$RC
 
 
