@@ -142,14 +142,13 @@ challenge2 <- challenge2 %>%
 spain <- challenge2 %>% 
           filter(cty == "Spain", Year >= 2000)
 
-spain_decom <- data.frame(matrix(, nrow = 18, ncol = 3))
-names(spain_decom) <- c("Year", "CC", "RC")
+spain_decom <- data.frame(matrix(, nrow = 18, ncol = 4))
+names(spain_decom) <- c("Year", "CC", "RC", "true_delta")
 
 spain_decom$Year <- seq(2001,2018, by=1)
 spain_decom$cty <- "Spain"
 
-for (i in 2000:2018){
-  #for (age in )
+for (i in 2000:2017){
   # Select ASFR for first period
   ASFR1 <- spain[spain$Year == i,]$ASFR
   # Select population for first period
@@ -158,15 +157,13 @@ for (i in 2000:2018){
   ASFR2 <- spain[spain$Year == i+1,]$ASFR
   Nx2 <- spain[spain$Year == i+1,]$Exposure
   
-  spain_decom$CC[i-2000+1] <- sum(0.5 * (ASFR2+ASFR1) * (Nx2/sum(Nx2) - Nx1/sum(Nx1)))
-  spain_decom$RC[i-2000+1] <- sum(0.5 * (Nx2/sum(Nx2) + Nx1/sum(Nx1)) * (ASFR2-ASFR1))
+  spain_decom$CC[i-2000+1] <- sum(0.5 * (ASFR2+ASFR1) * (Nx2/sum(Nx2) - Nx1/sum(Nx1))) * 1000
+  spain_decom$RC[i-2000+1] <- sum(0.5 * (Nx2/sum(Nx2) + Nx1/sum(Nx1)) * (ASFR2-ASFR1)) * 1000
+  spain_decom$true_delta[i-2000+1] <- sum(ASFR2) - sum(ASFR1)
 }
 
 
 # CHECK!!!
-
-
-
-
+spain_decom$delta_TFR <- spain_decom$CC + spain_decom$RC
 
 
