@@ -115,15 +115,55 @@ challenge2 <- rbind(spain, czechia, korea)
 # Some plotting
 challenge2 %>%
   filter(Age >= 15, Age <= 49) %>% 
-  mutate(TFR_age = Births/Exposure) %>%
+  mutate(ASFR = Births/Exposure) %>%
   group_by(cty, Year) %>%
-  summarise(TFR = sum(TFR_age, na.rm = T)) %>% 
+  summarise(TFR = sum(ASFR, na.rm = T)) %>% 
   filter(Year >= 2000) %>% 
   ggplot(aes(x=Year, y = TFR, color = cty)) + geom_line() +
   theme_bw()
 
 
 
+# Create Kitagawa function
+# Instead of having Mx, now I have ASFR for each age group. t1 and t2 are subsequent years for all ages
+# Need to create Year totals for Nx
+# Using:
+    # Tønnessen, M. (2019). Declined total fertility rate among immigrants and the role of newly arrived women in Norway. European Journal of Population, 1-27.
+    # Canudas-Romo, V. (2003). Decomposition methods in demography. Amsterdam: Rozenberg Publishers.
+
+challenge2 <- challenge2 %>% 
+                mutate(Births = replace_na(Births, 0),
+                        ASFR = Births/Exposure)
+
+
+# Loop Kitagawa on full dataset
+
+# Spain
+spain <- challenge2 %>% 
+          filter(cty == "Spain", Year >= 2000)
+
+spain_decom <- data.frame(matrix(, nrow = 18, ncol = 3))
+names(spain_decom) <- c("Year", "CC", "RC")
+
+spain_decom$Year <- seq(2001,2018, by=1)
+spain_decom$cty <- "Spain"
+
+for (i in 2000:2018){
+  #for (age in )
+  # Select ASFR for first period
+  ASFR1 <- spain[spain$Year == i,]$ASFR
+  # Select population for first period
+  Nx1 <- spain[spain$Year == i,]$Exposure
+  # Do the same for period 2
+  ASFR2 <- spain[spain$Year == i+1,]$ASFR
+  Nx2 <- spain[spain$Year == i+1,]$Exposure
+  
+  spain_decom$CC[i-2000+1] <- sum(0.5 * (ASFR2+ASFR1) * (Nx2/sum(Nx2) - Nx1/sum(Nx1)))
+  spain_decom$RC[i-2000+1] <- sum(0.5 * (Nx2/sum(Nx2) + Nx1/sum(Nx1)) * (ASFR2-ASFR1))
+}
+
+
+# CHECK!!!
 
 
 
