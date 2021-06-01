@@ -161,6 +161,40 @@ for (i in init_y:(end_y-1)){
   ASFR2 <- spain[spain$Year == i+1,]$ASFR
   Nx2 <- spain[spain$Year == i+1,]$Exposure
   
+  spain_decom$CC[i - init_y + 1] <- sum(0.5 * (ASFR2+ASFR1) * ( (Nx2/sum(Nx2)) - (Nx1/sum(Nx1)) ) ) *1000
+  spain_decom$RC[i - init_y + 1] <- sum(0.5 * ( (Nx2/sum(Nx2)) + (Nx1/sum(Nx1)) ) * (ASFR2-ASFR1) ) *1000
+  spain_decom$true_delta[i - init_y + 1] <- sum(ASFR2*Nx2/sum(Nx2)) *1000 - sum(ASFR1*Nx1/sum(Nx1)) *1000
+}
+
+
+# CHECK!!!
+spain_decom$kit_delta <- spain_decom$CC + spain_decom$RC
+
+
+
+
+
+
+
+# Spain
+spain <- challenge2 %>% 
+  filter(cty == "Spain", Year >= init_y)
+
+spain_decom <- data.frame(matrix(NA, nrow = end_y - init_y, ncol = 4))
+names(spain_decom) <- c("Year", "CC", "RC", "true_delta")
+
+spain_decom$Year <- seq(init_y + 1, end_y, by=1)
+spain_decom$cty <- "Spain"
+
+for (i in init_y:(end_y-1)){
+  # Select ASFR for first period
+  ASFR1 <- spain[spain$Year == i,]$ASFR
+  # Select population for first period
+  Nx1 <- spain[spain$Year == i,]$Exposure
+  # Do the same for period 2
+  ASFR2 <- spain[spain$Year == i+1,]$ASFR
+  Nx2 <- spain[spain$Year == i+1,]$Exposure
+  
   spain_decom$CC[i - init_y + 1] <- sum(0.5 * (ASFR2+ASFR1) * ( (Nx2/sum(Nx2)) - (Nx1/sum(Nx1)) ) )
   spain_decom$RC[i - init_y + 1] <- sum(0.5 * ( (Nx2/sum(Nx2)) + (Nx1/sum(Nx1)) ) * (ASFR2-ASFR1) )
   spain_decom$true_delta[i - init_y + 1] <- sum(ASFR2*Nx2/sum(Nx2)) - sum(ASFR1*Nx1/sum(Nx1))
@@ -169,5 +203,3 @@ for (i in init_y:(end_y-1)){
 
 # CHECK!!!
 spain_decom$kit_delta <- spain_decom$CC + spain_decom$RC
-
-
