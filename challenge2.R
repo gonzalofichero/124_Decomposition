@@ -172,34 +172,105 @@ spain_decom$kit_delta <- spain_decom$CC + spain_decom$RC
 
 
 
+# Czechia
+cze <- challenge2 %>% 
+  filter(cty == "Czechia", Year >= init_y)
 
+cze_decom <- data.frame(matrix(NA, nrow = end_y - init_y, ncol = 4))
+names(cze_decom) <- c("Year", "CC", "RC", "true_delta")
 
-
-
-# Spain
-spain <- challenge2 %>% 
-  filter(cty == "Spain", Year >= init_y)
-
-spain_decom <- data.frame(matrix(NA, nrow = end_y - init_y, ncol = 4))
-names(spain_decom) <- c("Year", "CC", "RC", "true_delta")
-
-spain_decom$Year <- seq(init_y + 1, end_y, by=1)
-spain_decom$cty <- "Spain"
+cze_decom$Year <- seq(init_y + 1, end_y, by=1)
+cze_decom$cty <- "Czechia"
 
 for (i in init_y:(end_y-1)){
   # Select ASFR for first period
-  ASFR1 <- spain[spain$Year == i,]$ASFR
+  ASFR1 <- cze[cze$Year == i,]$ASFR
   # Select population for first period
-  Nx1 <- spain[spain$Year == i,]$Exposure
+  Nx1 <- cze[cze$Year == i,]$Exposure
   # Do the same for period 2
-  ASFR2 <- spain[spain$Year == i+1,]$ASFR
-  Nx2 <- spain[spain$Year == i+1,]$Exposure
+  ASFR2 <- cze[cze$Year == i+1,]$ASFR
+  Nx2 <- cze[cze$Year == i+1,]$Exposure
   
-  spain_decom$CC[i - init_y + 1] <- sum(0.5 * (ASFR2+ASFR1) * ( (Nx2/sum(Nx2)) - (Nx1/sum(Nx1)) ) )
-  spain_decom$RC[i - init_y + 1] <- sum(0.5 * ( (Nx2/sum(Nx2)) + (Nx1/sum(Nx1)) ) * (ASFR2-ASFR1) )
-  spain_decom$true_delta[i - init_y + 1] <- sum(ASFR2*Nx2/sum(Nx2)) - sum(ASFR1*Nx1/sum(Nx1))
+  cze_decom$CC[i - init_y + 1] <- sum(0.5 * (ASFR2+ASFR1) * ( (Nx2/sum(Nx2)) - (Nx1/sum(Nx1)) ) ) *1000
+  cze_decom$RC[i - init_y + 1] <- sum(0.5 * ( (Nx2/sum(Nx2)) + (Nx1/sum(Nx1)) ) * (ASFR2-ASFR1) ) *1000
+  cze_decom$true_delta[i - init_y + 1] <- sum(ASFR2*Nx2/sum(Nx2)) *1000 - sum(ASFR1*Nx1/sum(Nx1)) *1000
 }
 
 
 # CHECK!!!
-spain_decom$kit_delta <- spain_decom$CC + spain_decom$RC
+cze_decom$kit_delta <- cze_decom$CC + cze_decom$RC
+
+
+# Korea
+kor <- challenge2 %>% 
+  filter(cty == "Korea", Year >= init_y)
+
+kor_decom <- data.frame(matrix(NA, nrow = end_y - init_y, ncol = 4))
+names(kor_decom) <- c("Year", "CC", "RC", "true_delta")
+
+kor_decom$Year <- seq(init_y + 1, end_y, by=1)
+kor_decom$cty <- "Korea"
+
+for (i in init_y:(end_y-1)){
+  # Select ASFR for first period
+  ASFR1 <- kor[kor$Year == i,]$ASFR
+  # Select population for first period
+  Nx1 <- kor[kor$Year == i,]$Exposure
+  # Do the same for period 2
+  ASFR2 <- kor[kor$Year == i+1,]$ASFR
+  Nx2 <- kor[kor$Year == i+1,]$Exposure
+  
+  kor_decom$CC[i - init_y + 1] <- sum(0.5 * (ASFR2+ASFR1) * ( (Nx2/sum(Nx2)) - (Nx1/sum(Nx1)) ) ) *1000
+  kor_decom$RC[i - init_y + 1] <- sum(0.5 * ( (Nx2/sum(Nx2)) + (Nx1/sum(Nx1)) ) * (ASFR2-ASFR1) ) *1000
+  kor_decom$true_delta[i - init_y + 1] <- sum(ASFR2*Nx2/sum(Nx2)) *1000 - sum(ASFR1*Nx1/sum(Nx1)) *1000
+}
+
+
+# CHECK!!!
+kor_decom$kit_delta <- kor_decom$CC + kor_decom$RC
+
+
+
+
+# Again, all together:
+
+chall2 <- rbind(spain_decom, cze_decom, kor_decom)
+
+
+# Plotting
+chall2 %>% 
+  pivot_longer(cols=c(RC,CC), names_to = "Kitagawa", values_to = "Delta_GFR") %>% 
+  select(Year, cty, Kitagawa, Delta_GFR) %>% 
+  ggplot(aes(x=Year, y=Delta_GFR, fill=Kitagawa)) + geom_bar(position="stack", stat="identity") +
+  facet_wrap(~cty) +
+  theme_bw()
+
+
+
+##########################################################
+# Now just 2 countries for last year and decompose:
+
+# Korea vs Czechia: Fight!
+
+# Korea
+ASFR1 <- challenge2 %>% ungroup() %>% filter(Year == 2018, cty == "Korea") %>% select(ASFR)
+Nx1 <- challenge2 %>% ungroup() %>% filter(Year == 2018, cty == "Korea") %>% select(Exposure)
+# Czechia
+ASFR2 <- challenge2 %>% ungroup() %>% filter(Year == 2018, cty == "Czechia") %>% select(ASFR)
+Nx2 <- challenge2 %>% ungroup() %>% filter(Year == 2018, cty == "Czechia") %>% select(Exposure)
+
+# Fight!
+cze_vs_kor_CC <- sum(0.5 * (ASFR2+ASFR1) * ( (Nx2/sum(Nx2)) - (Nx1/sum(Nx1)) ) )
+cze_vs_kor_RC <- sum(0.5 * ( (Nx2/sum(Nx2)) + (Nx1/sum(Nx1)) ) * (ASFR2-ASFR1) )
+cze_vs_kor_delta_GFR <- sum(ASFR2*Nx2/sum(Nx2)*1000) - sum(ASFR1*Nx1/sum(Nx1)*1000)
+cze_vs_kor_kitagawa <- cze_vs_kor_CC*1000 + cze_vs_kor_RC*1000
+
+cze_vs_kor_delta_GFR
+cze_vs_kor_kitagawa
+
+cze_vs_kor_CC *1000
+cze_vs_kor_RC *1000
+# The difference in last year mostly driven by RC: more wanting babies in CZE?
+
+
+
