@@ -117,7 +117,7 @@ challenge2 %>%
   filter(Age >= 15, Age <= 49) %>% 
   mutate(ASFR = Births/Exposure) %>%
   group_by(cty, Year) %>%
-  summarise(TFR = sum(ASFR, na.rm = T)) %>% 
+  summarise(GFR = sum(ASFR, na.rm = T)*(Exposure/sum(Exposure, na.rm=T))) %>% 
   filter(Year >= 2000) %>% 
   ggplot(aes(x=Year, y = TFR, color = cty)) + geom_line() +
   theme_bw()
@@ -163,7 +163,7 @@ for (i in init_y:(end_y-1)){
   
   spain_decom$CC[i - init_y + 1] <- sum(0.5 * (ASFR2+ASFR1) * ( (Nx2/sum(Nx2)) - (Nx1/sum(Nx1)) ) )
   spain_decom$RC[i - init_y + 1] <- sum(0.5 * ( (Nx2/sum(Nx2)) + (Nx1/sum(Nx1)) ) * (ASFR2-ASFR1) )
-  spain_decom$true_delta[i - init_y + 1] <- sum(ASFR2) - sum(ASFR1)
+  spain_decom$true_delta[i - init_y + 1] <- sum(ASFR2*Nx2/sum(Nx2)) - sum(ASFR1*Nx1/sum(Nx1))
 }
 
 
