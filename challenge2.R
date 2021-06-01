@@ -274,3 +274,39 @@ cze_vs_kor_RC *1000
 
 
 
+# Korea vs Czechia, Round 2: Fight!
+fight <- challenge2 %>% 
+  filter(cty %in% c("Czechia","Korea"), Year >= init_y)
+
+fight_decom <- data.frame(matrix(NA, nrow = end_y - init_y, ncol = 4))
+names(fight_decom) <- c("Year", "CC", "RC", "true_delta")
+
+fight_decom$Year <- seq(init_y + 1, end_y, by=1)
+fight_decom$cty <- "Czechia compared to Korea"
+
+for (i in init_y:(end_y-1)){
+  # Select ASFR for first period
+  ASFR1 <- fight %>% ungroup() %>% filter(Year == i, cty == "Korea") %>% select(ASFR)
+  # Select population for first period
+  Nx1 <- fight %>% ungroup() %>% filter(Year == i, cty == "Korea") %>% select(Exposure)
+  # Do the same for period 2
+  ASFR2 <- fight %>% ungroup() %>% filter(Year == i, cty == "Czechia") %>% select(ASFR)
+  Nx2 <- fight %>% ungroup() %>% filter(Year == i, cty == "Czechia") %>% select(Exposure)
+  
+  fight_decom$CC[i - init_y + 1] <- sum(0.5 * (ASFR2+ASFR1) * ( (Nx2/sum(Nx2)) - (Nx1/sum(Nx1)) ) ) *1000
+  fight_decom$RC[i - init_y + 1] <- sum(0.5 * ( (Nx2/sum(Nx2)) + (Nx1/sum(Nx1)) ) * (ASFR2-ASFR1) ) *1000
+  fight_decom$true_delta[i - init_y + 1] <- sum(ASFR2*Nx2/sum(Nx2)) *1000 - sum(ASFR1*Nx1/sum(Nx1)) *1000
+}
+
+
+# CHECK!!!
+fight_decom$kit_delta <- fight_decom$CC + fight_decom$RC
+
+
+
+# Plotting
+fight_decom %>% 
+  pivot_longer(cols=c(RC,CC), names_to = "Kitagawa", values_to = "Delta_GFR") %>% 
+  select(Year, cty, Kitagawa, Delta_GFR) %>% 
+  ggplot(aes(x=Year, y=Delta_GFR, fill=Kitagawa)) + geom_bar(position="stack", stat="identity") +
+  theme_bw()
