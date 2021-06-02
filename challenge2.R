@@ -112,17 +112,6 @@ challenge2 <- rbind(spain, czechia, korea)
 
 
 
-# Some plotting
-challenge2 %>%
-  filter(Age >= 15, Age <= 49) %>% 
-  mutate(ASFR = Births/Exposure) %>%
-  group_by(cty, Year) %>%
-  summarise(GFR = sum(ASFR, na.rm = T)*(Exposure/sum(Exposure, na.rm=T))) %>% 
-  filter(Year >= 2000) %>% 
-  ggplot(aes(x=Year, y = TFR, color = cty)) + geom_line() +
-  theme_bw()
-
-
 
 # Create Kitagawa function
 # Instead of having Mx, now I have ASFR for each age group. t1 and t2 are subsequent years for all ages
