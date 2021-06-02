@@ -112,6 +112,16 @@ challenge2 <- rbind(spain, czechia, korea)
 
 
 
+# Some plotting
+challenge2 %>%
+  filter(Age >= 15, Age <= 49) %>% 
+  group_by(cty, Year) %>%
+  summarise(GFR = sum(Births, na.rm = T) / sum(Exposure, na.rm = T) * 1000) %>%
+  filter(Year >= 2000) %>% 
+  ggplot(aes(x=Year, y = GFR, color = cty)) + geom_line() +
+  theme_bw()
+
+
 
 # Create Kitagawa function
 # Instead of having Mx, now I have ASFR for each age group. t1 and t2 are subsequent years for all ages
@@ -153,6 +163,8 @@ for (i in init_y:(end_y-1)){
   spain_decom$CC[i - init_y + 1] <- sum(0.5 * (ASFR2+ASFR1) * ( (Nx2/sum(Nx2)) - (Nx1/sum(Nx1)) ) ) *1000
   spain_decom$RC[i - init_y + 1] <- sum(0.5 * ( (Nx2/sum(Nx2)) + (Nx1/sum(Nx1)) ) * (ASFR2-ASFR1) ) *1000
   spain_decom$true_delta[i - init_y + 1] <- sum(ASFR2*Nx2/sum(Nx2)) *1000 - sum(ASFR1*Nx1/sum(Nx1)) *1000
+  spain_decom$measure_t0[i - init_y + 1] <- sum(ASFR1*Nx1/sum(Nx1)) *1000
+  spain_decom$measure_t1[i - init_y + 1] <- sum(ASFR2*Nx2/sum(Nx2)) *1000
 }
 
 
@@ -285,6 +297,8 @@ for (i in init_y:(end_y-1)){
   fight_decom$CC[i - init_y + 1] <- sum(0.5 * (ASFR2+ASFR1) * ( (Nx2/sum(Nx2)) - (Nx1/sum(Nx1)) ) ) *1000
   fight_decom$RC[i - init_y + 1] <- sum(0.5 * ( (Nx2/sum(Nx2)) + (Nx1/sum(Nx1)) ) * (ASFR2-ASFR1) ) *1000
   fight_decom$true_delta[i - init_y + 1] <- sum(ASFR2*Nx2/sum(Nx2)) *1000 - sum(ASFR1*Nx1/sum(Nx1)) *1000
+  fight_decom$measure_t0[i - init_y + 1] <- sum(ASFR1*Nx1/sum(Nx1)) *1000
+  fight_decom$measure_t1[i - init_y + 1] <- sum(ASFR2*Nx2/sum(Nx2)) *1000
 }
 
 
